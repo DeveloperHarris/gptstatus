@@ -38,11 +38,11 @@ export default function LatencyChartPopulated({ data }: Props) {
             padding: 10,
           }}
         >
-          <p className="label">{`Date : ${format(
+          <p className="label">{`Date: ${format(
             new Date(label),
             "MMM dd HH:mm"
           )}`}</p>
-          <p className="intro">{`Response Time (s) : ${payload[0].value}`}</p>
+          <p className="intro">{`Response Time (s): ${payload[0].value}`}</p>
         </div>
       )
     }
@@ -57,7 +57,7 @@ export default function LatencyChartPopulated({ data }: Props) {
         <CartesianGrid stroke="#eee" />
         <XAxis
           dataKey="date"
-          tickFormatter={(tickItem) => format(new Date(tickItem), "MMM dd")}
+          tickFormatter={(tickItem) => format(new Date(tickItem), "HH:mm")}
         />
         <YAxis
           label={{ value: "Seconds", angle: -90, position: "insideLeft" }}
