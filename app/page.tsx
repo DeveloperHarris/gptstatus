@@ -40,12 +40,8 @@ export default function IndexPage() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">GPT 4</TabsTrigger>
-          <TabsTrigger value="analytics" disabled>
-            GPT 3.5 Turbo
-          </TabsTrigger>
-          <TabsTrigger value="reports" disabled>
-            GPT 3
-          </TabsTrigger>
+          <TabsTrigger value="analytics">GPT 3.5 Turbo</TabsTrigger>
+          <TabsTrigger value="reports">GPT 3</TabsTrigger>
           <TabsTrigger value="notifications" disabled>
             PALM
           </TabsTrigger>

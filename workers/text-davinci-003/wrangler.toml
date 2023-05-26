@@ -1,0 +1,9 @@
+name = "text-davinci-003-heartbeat"
+compatibility_date = "2023-05-26"
+node_compat = true
+usage_model = "unbound"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
