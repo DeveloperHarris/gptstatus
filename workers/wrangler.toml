@@ -1,0 +1,8 @@
+name = "heartbeat"
+compatibility_date = "2023-05-26"
+node_compat = true
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
