@@ -73,7 +73,7 @@ export default {
     await client.connect()
 
     const text =
-      "INSERT INTO response_time(duration, date) VALUES($1, $2) RETURNING *"
+      "INSERT INTO response_times(duration, date) VALUES($1, $2) RETURNING *"
     const values = [responseTime, new Date(event.scheduledTime)]
 
     try {
