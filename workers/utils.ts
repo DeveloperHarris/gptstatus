@@ -30,7 +30,7 @@ export async function testOpenAIAPI(OPENAI_API_KEY: string, model: string) {
         {
           role: "user",
           content:
-            "Can you please provide an in-depth overview of Quantum Cryptography, and the current research being done?",
+            "Can you please provide an extensive & in-depth overview of Quantum Cryptography, and the current research being done?",
         },
       ],
     }
@@ -39,7 +39,7 @@ export async function testOpenAIAPI(OPENAI_API_KEY: string, model: string) {
     body = {
       ...base,
       prompt:
-        "Can you please provide an in-depth overview of Quantum Cryptography, and the current research being done?",
+        "Can you please provide an extensive & in-depth overview of Quantum Cryptography, and the current research being done?",
     }
   }
 
@@ -67,7 +67,11 @@ export async function testOpenAIAPI(OPENAI_API_KEY: string, model: string) {
     console.log("No response body")
     return
   }
+
+  // Handle stream
   const reader = response.body.getReader()
+  let finishReason = null
+  const decoder = new TextDecoder("utf-8")
 
   // Get first byte
   let chunk = await reader.read()
@@ -77,7 +81,28 @@ export async function testOpenAIAPI(OPENAI_API_KEY: string, model: string) {
 
   // Read the rest of the response
   while (!chunk.done) {
+    const chunkText = decoder
+      .decode(chunk.value, { stream: true })
+      .replace("data: ", "")
+      .trim()
+
+    if (chunkText.length > 0 && chunkText !== "[DONE]") {
+      try {
+        const data = JSON.parse(chunkText)
+        if (data.choices && data.choices[0].finish_reason !== null) {
+          finishReason = data.choices[0].finish_reason
+        }
+      } catch (e) {
+        console.error("Failed to parse data message:", e)
+      }
+    }
+
     chunk = await reader.read()
+  }
+
+  // Ensure heartbeat checks are always 256 tokens
+  if (finishReason !== "length") {
+    throw new Error(`Unexpected finish reason: ${finishReason}`)
   }
 
   const totalTime = Date.now() - startTime
@@ -111,7 +136,7 @@ export async function logResponseTimes(
       date,
       ttfb,
       duration,
-      max_tokens / duration,
+      max_tokens / (duration / 1000),
     ])
     console.log(res.rows[0])
   } catch (err) {
