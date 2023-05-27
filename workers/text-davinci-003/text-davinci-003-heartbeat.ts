@@ -19,7 +19,11 @@ export default {
 
     const response = await testOpenAIAPI(env.OPENAI_API_KEY, model)
 
-    if (response == undefined) {
+    if (
+      response == undefined ||
+      response.ttfb == undefined ||
+      response.duration == undefined
+    ) {
       return
     }
 

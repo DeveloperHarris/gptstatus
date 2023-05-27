@@ -20,7 +20,7 @@ export async function testOpenAIAPI(OPENAI_API_KEY: string, model: string) {
 
   if (model == "gpt-4" || model == "gpt-3.5-turbo") {
     url = chat_url
-    body = {
+    body = JSON.stringify({
       ...base,
       messages: [
         {
@@ -33,87 +33,123 @@ export async function testOpenAIAPI(OPENAI_API_KEY: string, model: string) {
             "Can you please provide an extensive & in-depth overview of Quantum Cryptography, and the current research being done?",
         },
       ],
-    }
+    })
   } else {
     url = completions_url
-    body = {
+    body = JSON.stringify({
       ...base,
       prompt:
         "Can you please provide an extensive & in-depth overview of Quantum Cryptography, and the current research being done?",
-    }
+    })
   }
 
   // Send request
-  const startTime = Date.now()
+  let generationAttempts = 0
+  const maxGenerationAttempts = 3
+  let finishReason = null
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify(body),
-  })
+  let startDate
 
-  // Handle response
-  if (!response.ok) {
+  let ttfb
+  let duration
+
+  while (generationAttempts < maxGenerationAttempts) {
+    generationAttempts++
+
+    startDate = Date.now()
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body,
+    })
+
+    // Handle response
+    if (!response.ok) {
+      console.log(
+        `Unexpected response from OpenAI API: ${response.status} ${response.statusText}`
+      )
+      return
+    }
+
+    if (!response.body) {
+      console.log("No response body")
+      return
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder("utf-8")
+
+    // Get first byte
+    let chunk = await reader.read()
+
+    // Log first byte time
+    ttfb = Date.now() - startDate
+
+    // Read the rest of the response
+    let chunks = []
+    while (!chunk.done) {
+      chunks.push(decoder.decode(chunk.value, { stream: true }))
+      chunk = await reader.read()
+    }
+
+    // Log total response time
+    duration = Date.now() - startDate
+
+    // Decode last chunk (ensure to flush the decoder's end-of-stream)
+    chunks.push(decoder.decode(chunk.value, { stream: false }))
+
+    // Concatenate chunks into single string
+    let responseText = chunks.join("")
+
+    // Split the response by newline to separate JSON objects
+    let jsonStrings = responseText.split("\n")
+
+    let parsedResult
+    // Loop through array from end to find last valid JSON object
+    for (let i = jsonStrings.length - 1; i >= 0; i--) {
+      try {
+        parsedResult = JSON.parse(jsonStrings[i].replace("data: ", ""))
+        // If parsing was successful, break from loop
+        break
+      } catch (e) {
+        // If parsing wasn't successful (i.e., not valid JSON), continue to next string
+        continue
+      }
+    }
+
+    // Extract finish reason from parsed result
+    finishReason = parsedResult.choices[0].finish_reason
+
+    // Ensure logs are always 256 tokens
+    if (finishReason !== "length") {
+      console.log(`Unexepcted finish reason: ${finishReason}`)
+      continue
+    } else {
+      break
+    }
+  }
+
+  if (
+    generationAttempts === maxGenerationAttempts &&
+    finishReason !== "length"
+  ) {
     console.log(
-      `Unexpected response from OpenAI API: ${response.status} ${response.statusText}`
+      `Failed to generate response after ${maxGenerationAttempts} attempts`
     )
     return
   }
 
-  if (!response.body) {
-    console.log("No response body")
-    return
-  }
-
-  // Handle stream
-  const reader = response.body.getReader()
-  let finishReason = null
-  const decoder = new TextDecoder("utf-8")
-
-  // Get first byte
-  let chunk = await reader.read()
-
-  // Log first byte time
-  const firstByteTime = Date.now() - startTime
-
-  // Read the rest of the response
-  while (!chunk.done) {
-    const chunkText = decoder
-      .decode(chunk.value, { stream: true })
-      .replace("data: ", "")
-      .trim()
-
-    if (chunkText.length > 0 && chunkText !== "[DONE]") {
-      try {
-        const data = JSON.parse(chunkText)
-        if (data.choices && data.choices[0].finish_reason !== null) {
-          finishReason = data.choices[0].finish_reason
-        }
-      } catch (e) {
-        console.error("Failed to parse data message:", e)
-      }
-    }
-
-    chunk = await reader.read()
-  }
-
-  // Ensure heartbeat checks are always 256 tokens
-  if (finishReason !== "length") {
-    throw new Error(`Unexpected finish reason: ${finishReason}`)
-  }
-
-  const totalTime = Date.now() - startTime
-
   // Debug
-  console.log("Time to first byte: " + firstByteTime + "ms")
-  console.log("Total response time: " + totalTime + "ms")
+  console.log("Time to first byte: " + ttfb + "ms")
+  console.log("Total response time: " + duration + "ms")
 
   return {
-    ttfb: firstByteTime,
-    duration: totalTime,
+    ttfb,
+    duration,
   }
 }
 

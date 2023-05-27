@@ -13,13 +13,24 @@ export default async function LatencyChart() {
 
   const { rows } = data
 
-  return (
-    <LatencyLineChart
-      data={rows.map((row) => ({
-        id: String(row.id),
-        date: String(row.date),
-        duration: Number(row.duration),
-      }))}
-    />
+  const transformedData = rows.reduce<Record<string, number | string>[]>(
+    (acc, row) => {
+      const existingEntry = acc.find(
+        (entry: Record<string, number | string>) =>
+          entry.date === String(row.date)
+      )
+      if (existingEntry) {
+        existingEntry[row.model] = Number(row.duration / 1000)
+      } else {
+        acc.push({
+          date: String(row.date),
+          [row.model]: Number(row.duration / 1000),
+        })
+      }
+      return acc
+    },
+    []
   )
+
+  return <LatencyLineChart data={transformedData} />
 }
