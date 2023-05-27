@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     images: [
       {
-        url: `${siteConfig.url}/api/og`,
+        url: `${siteConfig.url}/gptstatus.png`,
         width: 1200,
         height: 600,
         alt: siteConfig.name,
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     images: [
       {
-        url: `${siteConfig.url}/api/og`,
+        url: `${siteConfig.url}/gptstatus.png`,
         width: 1200,
         height: 600,
         alt: siteConfig.name,
