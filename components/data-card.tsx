@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 
 type Props = {
   title: string
+  subtitle?: string
   model: string
   datapoint: string
   modifier?: (datapoint: string) => string | undefined
@@ -14,6 +15,7 @@ type Props = {
 
 export default async function DataCard({
   title,
+  subtitle,
   model,
   datapoint,
   modifier,
@@ -35,7 +37,12 @@ export default async function DataCard({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <div className="flex h-8 flex-col">
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardTitle className="text-xs font-light text-muted-foreground">
+            {subtitle ? subtitle : ""}
+          </CardTitle>
+        </div>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>

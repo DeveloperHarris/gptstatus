@@ -53,7 +53,7 @@ export default function LatencyChartPopulated({ data }: Props) {
 
   if (displayedData == undefined || displayedData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex h-96 items-center justify-center">
         <p className="text-2xl text-gray-500">No data to display</p>
       </div>
     )
@@ -124,7 +124,7 @@ export default function LatencyChartPopulated({ data }: Props) {
           dataKey="date"
           tickFormatter={(tickItem) => format(new Date(tickItem), "HH:mm")}
           label={{
-            value: "Time (UTC)",
+            value: "Time",
             position: "insideBottom",
             offset: -8,
             style: { fontSize: "12px" },

@@ -28,6 +28,7 @@ const models = [
 const cards = [
   {
     title: "Response Time",
+    subtitle: "256 token test",
     datapoint: "duration",
     modifier: (datapoint: string) => `${Number(datapoint) / 1000}`,
     unit: "s",
@@ -65,12 +66,11 @@ export default function ModelCards() {
           <TabsContent value={model.value} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {cards.map((card) => (
-                <Suspense
-                  fallback={<DataCardPlaceholder title="Response Time" />}
-                >
+                <Suspense fallback={<DataCardPlaceholder title={card.title} />}>
                   {/* @ts-expect-error Async Server Component */}
                   <DataCard
                     title={card.title}
+                    subtitle={card.subtitle}
                     model={model.value}
                     datapoint={card.datapoint}
                     modifier={card.modifier}
