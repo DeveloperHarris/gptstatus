@@ -2,7 +2,7 @@ import { CalendarDateRangePicker } from "@/components/calender-date-range-picker
 import LatencyChartCard from "@/components/latency-chart-card"
 import ModelCards from "@/components/model-cards"
 
-export const revalidate = 300
+export const revalidate = 150
 
 export default function IndexPage() {
   return (
