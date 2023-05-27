@@ -42,8 +42,8 @@ export default async function DataCard({
         <div className="text-2xl font-bold">
           {rows[0]
             ? modifier
-              ? `${modifier(rows[0][datapoint])}${unit}`
-              : `${rows[0][datapoint]}${unit}`
+              ? `${modifier(rows[0][datapoint])}${unit ? unit : ""}`
+              : `${rows[0][datapoint]}${unit ? unit : ""}`
             : "N/A"}
         </div>
         {/* <p className="text-xs text-muted-foreground">
