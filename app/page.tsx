@@ -2,6 +2,8 @@ import { CalendarDateRangePicker } from "@/components/calender-date-range-picker
 import LatencyChartCard from "@/components/latency-chart-card"
 import ModelCards from "@/components/model-cards"
 
+export const revalidate = 300
+
 export default function IndexPage() {
   return (
     <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">

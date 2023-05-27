@@ -1,7 +1,7 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "GPT Stats",
+  name: "GPT Status",
   description:
     "A community dashboard for tracking OpenAI's API availability and performance.",
   mainNav: [],
